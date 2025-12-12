@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiệp Mời Dự Tiệc - Hồng Pastel</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #f7e7ef, #f5d4e6);
+            font-family: "Playfair Display", serif;
+            color: #6d3c55;
+            overflow-x: hidden;
+        }
+
+        .card {
+            max-width: 720px;
+            margin: 80px auto;
+            padding: 40px 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 182, 193, 0.6);
+            border-radius: 18px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 25px rgba(255, 182, 193, 0.5);
+        }
+
+        h1 {
+            font-size: 38px;
+            color: #d36b9c;
+            margin-bottom: 10px;
+            text-shadow: 0 0 8px rgba(211, 107, 156, 0.4);
+        }
+
+        .divider {
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, transparent, #d36b9c, transparent);
+            margin: 20px auto 30px;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .qr img {
+            width: 260px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px solid #d36b9c;
+            box-shadow: 0 0 12px rgba(211, 107, 156, 0.4);
+        }
+
+        .footer {
+            margin-top: 28px;
+            font-size: 17px;
+            color: #d36b9c;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<div class="card">
+    <h1>🎂 Thiệp Mời Dự Tiệc Sinh Nhật 🎂</h1>
+
+    <div class="divider"></div>
+
+    <p>Kính mời các anh em đến tham dự buổi tiệc Sinh Nhật Nam & chú Cuân.</p>
+
+    <p><strong>⏰ Thời gian:</strong> 18h30 Ngày 13/12/2025</p>
+    <p><strong>📍 Địa điểm:</strong> Tư Gia Namkm - Số 46, ngõ 177 đường Cầu Diễn, Phường Xuân Phương</p>
+
+    <p>No one is too busy it's just a matter of priority!</p>
+
+    <h3 style="color:#d36b9c; margin-top: 25px;">🎁 Nuôi Em 🎁</h3>
+
+    <div class="qr">
+        <img src="https://ik.imagekit.io/namkm/IMG_5925.jpeg" alt="QR gửi mừng">
+    </div>
+
+    <div class="footer">
+        Trân trọng kính mời!
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+
+    function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const fireworks = [];
+    function Firework() {
+        this.x = Math.random() * w;
+        this.y = h;
+        this.targetY = Math.random() * h * 0.5;
+        this.speed = 3 + Math.random() * 3;
+        this.size = 2;
+        this.exploded = false;
+        this.particles = [];
+        this.color = `hsl(${Math.random() * 360}, 80%, 70%)`;
+
+        this.update = function () {
+            if (!this.exploded) {
+                this.y -= this.speed;
+                if (this.y <= this.targetY) {
+                    this.explode();
+                }
+            } else {
+                this.particles.forEach(p => p.update());
+            }
+        };
+
+        this.draw = function () {
+            if (!this.exploded) {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            } else {
+                this.particles.forEach(p => p.draw());
+            }
+        };
+
+        this.explode = function () {
+            this.exploded = true;
+            for (let i = 0; i < 40; i++) {
+                this.particles.push(new Particle(this.x, this.y, this.color));
+            }
+        };
+    }
+
+    function Particle(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.size = 2 + Math.random() * 2;
+        this.speedX = (Math.random() - 0.5) * 6;
+        this.speedY = (Math.random() - 0.5) * 6;
+        this.life = 40 + Math.random() * 20;
+        this.color = color;
+
+        this.update = function () {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.life--;
+        };
+
+        this.draw = function () {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        };
+    }
+
+    function loop() {
+        ctx.clearRect(0, 0, w, h);
+        if (Math.random() < 0.06) fireworks.push(new Firework());
+        fireworks.forEach((fw, i) => {
+            fw.update();
+            fw.draw();
+            if (fw.exploded && fw.particles.every(p => p.life <= 0)) {
+                fireworks.splice(i, 1);
+            }
+        });
+        requestAnimationFrame(loop);
+    }
+    loop();
+</script>
+
+</body>
+</html>
